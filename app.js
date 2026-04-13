@@ -190,7 +190,7 @@ function renderProfile(user) {
   ];
 
   const statCards = stats.map(s => `
-    <div class="rounded-xl px-4 py-3 text-center min-w-[80px]" style="background:rgba(255,255,255,0.07)">
+    <div class="stat-card rounded-xl px-4 py-3 text-center min-w-[80px]">
       <p class="text-pink-400 text-xl font-bold">${s.value}</p>
       <p class="text-gray-400 text-xs mt-0.5">${s.label}</p>
     </div>`).join('');
@@ -237,7 +237,7 @@ function renderAchievements(badges) {
       <span class="text-xs text-gray-400 leading-tight max-w-[72px] truncate">${b.displayName}</span>
     </div>`).join('');
   return `
-    <div class="mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,0.08)">
+    <div class="achievements-divider mt-4 pt-4">
       <p class="text-xs text-gray-500 uppercase tracking-widest mb-3">Achievements</p>
       <div class="flex flex-wrap gap-5">${badgeCards}</div>
     </div>`;
@@ -318,11 +318,11 @@ function renderContributions(calendar) {
     </div>
     <div class="flex items-center gap-2 mt-2 text-xs text-gray-500">
       <span>Less</span>
-      <div class="w-3 h-3 rounded-sm" style="background:#040e1e"></div>
-      <div class="w-3 h-3 rounded-sm" style="background:#4d7c0f"></div>
-      <div class="w-3 h-3 rounded-sm" style="background:#65a30d"></div>
-      <div class="w-3 h-3 rounded-sm" style="background:#4ade80"></div>
-      <div class="w-3 h-3 rounded-sm" style="background:#166534"></div>
+      <div class="contrib-legend-0 w-3 h-3 rounded-sm"></div>
+      <div class="contrib-legend-1 w-3 h-3 rounded-sm"></div>
+      <div class="contrib-legend-2 w-3 h-3 rounded-sm"></div>
+      <div class="contrib-legend-3 w-3 h-3 rounded-sm"></div>
+      <div class="contrib-legend-4 w-3 h-3 rounded-sm"></div>
       <span>More</span>
     </div>`;
 }
@@ -436,8 +436,7 @@ async function loadProfile() {
   (async () => {
     if (!token) {
       $('contribContent').innerHTML = `
-        <div class="rounded-xl p-4 text-sm text-gray-400 flex gap-3 items-start"
-             style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08)">
+        <div class="info-box rounded-xl p-4 text-sm text-gray-400 flex gap-3 items-start">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-pink-400 shrink-0 mt-0.5" fill="none"
                viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
