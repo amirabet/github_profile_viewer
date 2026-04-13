@@ -18,7 +18,7 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
-  opacity: 0.8;
+  opacity: 1;
 }
 
 /* Ensure page content sits above the video */
@@ -36,14 +36,14 @@ body > *:not(.globe-bg) {
 .accordion-btn { background: transparent; }
 .accordion-btn:hover { background: rgba(255, 255, 255, 0.05); }
 
-/* Glass panel with top-lit border */
+/* Glass panel with top-lit border, darker at bottom */
 .glass-panel {
   background:
-    linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)) padding-box,
-    -webkit-linear-gradient(to bottom, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.06) 100%) border-box;
+    linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)) padding-box,
+    -webkit-linear-gradient(to bottom, rgba(255,255,255,0.30) 0%, rgba(0,0,0,0.45) 100%) border-box;
   background:
-    linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)) padding-box,
-    linear-gradient(to bottom, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.06) 100%) border-box;
+    linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)) padding-box,
+    linear-gradient(to bottom, rgba(255,255,255,0.30) 0%, rgba(0,0,0,0.45) 100%) border-box;
   border: 1px solid transparent;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -60,7 +60,7 @@ body > *:not(.globe-bg) {
 .btn-gradient:active:not(:disabled) { filter: brightness(0.92); transform: scale(0.98); }
 .btn-gradient:disabled { filter: grayscale(0.5) brightness(0.7); cursor: not-allowed; }
 
-/* Results panels layout */
+/* Results panels layout — masonry-like columns */
 .results-panels {
   display: flex;
   flex-direction: column;
@@ -69,13 +69,26 @@ body > *:not(.globe-bg) {
 
 @media (min-width: 800px) {
   .results-panels {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    display: block;
+    columns: 2;
+    column-gap: 1rem;
   }
-  .full-width-panel {
-    grid-column: 1 / -1;
+  .results-panels > * {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+    display: block;
   }
+  /* Header bar spans both columns */
+  .results-panels > .full-width-panel {
+    column-span: all;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Panel scrollable content area */
+.panel-scroll {
+  max-height: 460px;
+  overflow-y: auto;
 }
 
 /* Stat card */
@@ -111,9 +124,9 @@ body > *:not(.globe-bg) {
 
 /* Contribution grid */
 .contrib-cell {
-  width: 11px;
-  height: 11px;
-  border-radius: 2px;
+  width: 7px;
+  height: 7px;
+  border-radius: 1px;
 }
 
 /* README prose overrides */
