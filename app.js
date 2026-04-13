@@ -291,12 +291,12 @@ function renderContributions(calendar) {
   // Build cells
   const cells = weeks.map(week => {
     const dayCells = week.contributionDays.map(day => {
-      // GitHub uses hex colors; map to our pink theme or keep theirs
+      // Map GitHub's default green scale to our blue-to-pink theme
       const baseColor = day.color === '#ebedf0' ? '#040e1e'
-                      : day.color === '#9be9a8' ? '#4d7c0f'
-                      : day.color === '#40c463' ? '#65a30d'
-                      : day.color === '#30a14e' ? '#4ade80'
-                      : day.color === '#216e39' ? '#166534'
+                      : day.color === '#9be9a8' ? '#1e3a6c'
+                      : day.color === '#40c463' ? '#2563eb'
+                      : day.color === '#30a14e' ? '#9333ea'
+                      : day.color === '#216e39' ? '#db2777'
                       : day.color; // keep GitHub default if unexpected
 
       return `<div class="contrib-cell" title="${day.date}: ${day.contributionCount} contribution(s)"
