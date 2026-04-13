@@ -10,10 +10,11 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="bg-gray-950 text-gray-100 min-h-screen font-sans antialiased">
+<body class="text-gray-100 min-h-screen font-sans antialiased" style="background:#040e1e">
 
   <!-- ─── Header ──────────────────────────────────────────────────── -->
-  <header class="border-b border-gray-800 bg-gray-900 sticky top-0 z-40 shadow-md">
+  <header id="pageHeader" class="border-b border-white/10 sticky top-0 z-40 shadow-md"
+          style="background:rgba(4,14,30,0.8);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)">
     <div class="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
            class="w-8 h-8 text-pink-400 shrink-0">
@@ -38,7 +39,7 @@
   <!-- ─── Search Form ─────────────────────────────────────────────── -->
   <main class="max-w-4xl mx-auto px-4 py-8 space-y-6">
 
-    <section class="bg-gray-900 border border-gray-700 rounded-2xl p-6 shadow-lg">
+    <section id="searchSection" class="glass-panel rounded-2xl p-6 shadow-lg">
       <h2 class="text-pink-400 font-semibold text-sm uppercase tracking-widest mb-4">Search a GitHub Profile</h2>
       <div class="grid sm:grid-cols-2 gap-4">
         <!-- Username -->
@@ -48,7 +49,7 @@
             id="usernameInput"
             type="text"
             placeholder="e.g. torvalds"
-            class="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500
+            class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500
                    focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition"
           />
         </div>
@@ -62,7 +63,7 @@
             id="tokenInput"
             type="password"
             placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
-            class="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500
+            class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500
                    focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition"
           />
         </div>
@@ -70,9 +71,8 @@
       <div class="mt-4 flex items-center gap-3">
         <button
           id="searchBtn"
-          class="bg-pink-600 hover:bg-pink-500 active:bg-pink-700 text-white font-semibold text-sm
-                 px-5 py-2 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-offset-2
-                 focus:ring-offset-gray-900 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="btn-gradient text-white font-semibold text-sm
+                 px-5 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -85,13 +85,23 @@
     </section>
 
     <!-- ─── Results ─────────────────────────────────────────────────── -->
-    <div id="results" class="space-y-4 hidden">
+    <div id="results" class="results-panels" style="display:none">
+
+      <!-- ── Results header bar (full width) ────────────────────────── -->
+      <div class="full-width-panel flex items-center justify-between py-1">
+        <span class="text-xs text-gray-500">
+          Viewing: <span id="searchedUsername" class="text-pink-400 font-medium"></span>
+        </span>
+        <button id="newSearchBtn"
+                class="text-xs text-pink-400 hover:text-pink-300 transition underline-offset-2 hover:underline">
+          ← New Search
+        </button>
+      </div>
 
       <!-- ── 1. Profile Info & Achievements ─────────────────────────── -->
-      <div class="bg-gray-900 border border-gray-700 rounded-2xl shadow-lg overflow-hidden">
+      <div id="profilePanel" class="glass-panel rounded-2xl shadow-lg overflow-hidden">
         <button
-          class="accordion-btn w-full flex items-center justify-between px-6 py-4 text-left
-                 hover:bg-gray-800 transition focus:outline-none focus:ring-inset focus:ring-1 focus:ring-pink-500"
+          class="accordion-btn w-full flex items-center justify-between px-6 py-4 text-left transition focus:outline-none"
           aria-expanded="true"
           data-target="panel-profile"
         >
@@ -111,14 +121,16 @@
           <div id="profileContent" class="flex flex-col sm:flex-row gap-6 items-start">
             <!-- filled by JS -->
           </div>
+          <div id="achievementsContent" class="hidden">
+            <!-- filled by JS when achievements are available -->
+          </div>
         </div>
       </div>
 
       <!-- ── 2. Pinned Repos ─────────────────────────────────────────── -->
-      <div class="bg-gray-900 border border-gray-700 rounded-2xl shadow-lg overflow-hidden">
+      <div id="reposPanel" class="glass-panel rounded-2xl shadow-lg overflow-hidden">
         <button
-          class="accordion-btn w-full flex items-center justify-between px-6 py-4 text-left
-                 hover:bg-gray-800 transition focus:outline-none focus:ring-inset focus:ring-1 focus:ring-pink-500"
+          class="accordion-btn w-full flex items-center justify-between px-6 py-4 text-left transition focus:outline-none"
           aria-expanded="true"
           data-target="panel-repos"
         >
@@ -142,10 +154,9 @@
       </div>
 
       <!-- ── 3. README ───────────────────────────────────────────────── -->
-      <div id="readmeSection" class="bg-gray-900 border border-gray-700 rounded-2xl shadow-lg overflow-hidden hidden">
+      <div id="readmeSection" class="glass-panel rounded-2xl shadow-lg overflow-hidden full-width-panel hidden">
         <button
-          class="accordion-btn w-full flex items-center justify-between px-6 py-4 text-left
-                 hover:bg-gray-800 transition focus:outline-none focus:ring-inset focus:ring-1 focus:ring-pink-500"
+          class="accordion-btn w-full flex items-center justify-between px-6 py-4 text-left transition focus:outline-none"
           aria-expanded="true"
           data-target="panel-readme"
         >
@@ -169,10 +180,9 @@
       </div>
 
       <!-- ── 4. Contributions ────────────────────────────────────────── -->
-      <div class="bg-gray-900 border border-gray-700 rounded-2xl shadow-lg overflow-hidden">
+      <div id="contribPanel" class="glass-panel rounded-2xl shadow-lg overflow-hidden full-width-panel">
         <button
-          class="accordion-btn w-full flex items-center justify-between px-6 py-4 text-left
-                 hover:bg-gray-800 transition focus:outline-none focus:ring-inset focus:ring-1 focus:ring-pink-500"
+          class="accordion-btn w-full flex items-center justify-between px-6 py-4 text-left transition focus:outline-none"
           aria-expanded="true"
           data-target="panel-contrib"
         >
@@ -200,7 +210,7 @@
   </main>
 
   <!-- ─── Footer ──────────────────────────────────────────────────── -->
-  <footer class="border-t border-gray-800 mt-12 py-4 text-center text-xs text-gray-600">
+  <footer class="border-t border-white/10 mt-12 py-4 text-center text-xs text-gray-600">
     GitHub Profile Viewer &mdash; data via
     <a href="https://docs.github.com/en/rest" target="_blank" rel="noopener"
        class="text-pink-500 hover:underline">GitHub REST &amp; GraphQL API</a>

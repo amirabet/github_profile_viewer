@@ -58,13 +58,13 @@ async function fetchProfile(username, headers) {
 ================================================================ */
 async function fetchPinnedRepos(username, headers) {
   if (!headers.Authorization) {
-    // Without a token GraphQL still works but may be rate-limited;
-    // try it anyway.
+    // GraphQL requires authentication — skip and use REST fallback
+    throw new Error('No token — using REST fallback');
   }
   const query = `
     query($login: String!) {
       user(login: $login) {
-        pinnedItems(first: 6, types: REPOSITORY) {
+        pinnedItems(first: 6, types: [REPOSITORY]) {
           nodes {
             ... on Repository {
               name description url stargazerCount forkCount
@@ -144,6 +144,37 @@ async function fetchContributions(username, headers) {
 }
 
 /* ================================================================
+   Fetch: Achievements / Badges (GraphQL)
+================================================================ */
+async function fetchAchievements(username, headers) {
+  if (!headers.Authorization) return [];
+  const query = `
+    query($login: String!) {
+      user(login: $login) {
+        badges {
+          nodes {
+            displayName
+            badgeUrl
+          }
+        }
+      }
+    }`;
+  try {
+    const res = await fetch('https://api.github.com/graphql', {
+      method: 'POST',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, variables: { login: username } }),
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    if (json.errors) return [];
+    return json.data?.user?.badges?.nodes ?? [];
+  } catch {
+    return [];
+  }
+}
+
+/* ================================================================
    Render: Profile
 ================================================================ */
 function renderProfile(user) {
@@ -159,7 +190,7 @@ function renderProfile(user) {
   ];
 
   const statCards = stats.map(s => `
-    <div class="bg-gray-800 rounded-xl px-4 py-3 text-center min-w-[80px]">
+    <div class="rounded-xl px-4 py-3 text-center min-w-[80px]" style="background:rgba(255,255,255,0.07)">
       <p class="text-pink-400 text-xl font-bold">${s.value}</p>
       <p class="text-gray-400 text-xs mt-0.5">${s.label}</p>
     </div>`).join('');
@@ -179,7 +210,7 @@ function renderProfile(user) {
 
   return `
     <img src="${user.avatar_url}" alt="${user.login}'s avatar"
-         class="w-28 h-28 rounded-full border-4 border-pink-500 shrink-0 object-cover shadow-lg" />
+         class="w-28 h-28 rounded-full shrink-0 object-cover shadow-lg" />
     <div class="flex-1 space-y-3">
       <div>
         <h2 class="text-2xl font-bold text-white">${user.name || user.login}</h2>
@@ -191,6 +222,24 @@ function renderProfile(user) {
       ${metaHTML}
       <p class="text-gray-500 text-xs">Joined ${joinDate}</p>
       <div class="flex flex-wrap gap-3 pt-1">${statCards}</div>
+    </div>`;
+}
+
+/* ================================================================
+   Render: Achievements
+================================================================ */
+function renderAchievements(badges) {
+  if (!badges || badges.length === 0) return '';
+  const badgeCards = badges.map(b => `
+    <div class="flex flex-col items-center gap-1 text-center" title="${b.displayName}">
+      <img src="${b.badgeUrl}" alt="${b.displayName}"
+           class="w-10 h-10 object-contain rounded-full" />
+      <span class="text-xs text-gray-400 leading-tight max-w-[72px] truncate">${b.displayName}</span>
+    </div>`).join('');
+  return `
+    <div class="mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,0.08)">
+      <p class="text-xs text-gray-500 uppercase tracking-widest mb-3">Achievements</p>
+      <div class="flex flex-wrap gap-5">${badgeCards}</div>
     </div>`;
 }
 
@@ -207,8 +256,7 @@ function renderRepoCard(repo, isPinned = true) {
 
   return `
     <a href="${url}" target="_blank" rel="noopener"
-       class="block bg-gray-800 border border-gray-700 rounded-xl p-4 hover:border-pink-500
-              transition group space-y-2">
+       class="repo-card block rounded-xl p-4 transition group space-y-2">
       <div class="flex items-start justify-between gap-2">
         <p class="font-semibold text-white group-hover:text-pink-400 transition text-sm truncate">${name}</p>
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-pink-600 shrink-0 mt-0.5" fill="none"
@@ -244,7 +292,7 @@ function renderContributions(calendar) {
   const cells = weeks.map(week => {
     const dayCells = week.contributionDays.map(day => {
       // GitHub uses hex colors; map to our pink theme or keep theirs
-      const baseColor = day.color === '#ebedf0' ? '#1e1e2e'
+      const baseColor = day.color === '#ebedf0' ? '#040e1e'
                       : day.color === '#9be9a8' ? '#4d7c0f'
                       : day.color === '#40c463' ? '#65a30d'
                       : day.color === '#30a14e' ? '#4ade80'
@@ -270,7 +318,7 @@ function renderContributions(calendar) {
     </div>
     <div class="flex items-center gap-2 mt-2 text-xs text-gray-500">
       <span>Less</span>
-      <div class="w-3 h-3 rounded-sm" style="background:#1e1e2e"></div>
+      <div class="w-3 h-3 rounded-sm" style="background:#040e1e"></div>
       <div class="w-3 h-3 rounded-sm" style="background:#4d7c0f"></div>
       <div class="w-3 h-3 rounded-sm" style="background:#65a30d"></div>
       <div class="w-3 h-3 rounded-sm" style="background:#4ade80"></div>
@@ -302,12 +350,14 @@ async function loadProfile() {
   const headers = buildHeaders(token);
 
   // Show results container with spinners
-  $('results').classList.remove('hidden');
+  $('results').style.removeProperty('display');
   $('profileContent').innerHTML  = spinner('Loading profile…');
   $('reposContent').innerHTML    = spinner('Loading repositories…');
   $('readmeContent').innerHTML   = spinner('Loading README…');
   $('contribContent').innerHTML  = spinner('Loading contributions…');
   $('readmeSection').classList.remove('hidden');
+  $('achievementsContent').classList.add('hidden');
+  $('achievementsContent').innerHTML = '';
 
   // Ensure all accordion panels are visible
   document.querySelectorAll('.accordion-btn').forEach(b => {
@@ -321,11 +371,26 @@ async function loadProfile() {
   try {
     user = await fetchProfile(username, headers);
     $('profileContent').innerHTML = renderProfile(user);
+    // User found — hide header and search form
+    $('pageHeader').classList.add('hidden');
+    $('searchSection').classList.add('hidden');
+    $('searchedUsername').textContent = username;
   } catch (err) {
     $('profileContent').innerHTML = errorHTML(err.message);
+    $('results').style.display = 'none';
     btn.disabled = false;
     return; // abort if user not found
   }
+
+  // ── Achievements (GraphQL — requires token) ───────────────────
+  (async () => {
+    if (!token) return;
+    const badges = await fetchAchievements(username, headers);
+    if (badges.length > 0) {
+      $('achievementsContent').innerHTML = renderAchievements(badges);
+      $('achievementsContent').classList.remove('hidden');
+    }
+  })();
 
   // ── Pinned Repos (GraphQL) → fallback REST ────────────────────
   (async () => {
@@ -371,7 +436,8 @@ async function loadProfile() {
   (async () => {
     if (!token) {
       $('contribContent').innerHTML = `
-        <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 text-sm text-gray-400 flex gap-3 items-start">
+        <div class="rounded-xl p-4 text-sm text-gray-400 flex gap-3 items-start"
+             style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08)">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-pink-400 shrink-0 mt-0.5" fill="none"
                viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -405,4 +471,13 @@ async function loadProfile() {
 $('searchBtn').addEventListener('click', loadProfile);
 $('usernameInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') loadProfile();
+});
+
+// New Search: restore header + search form, hide results
+$('newSearchBtn').addEventListener('click', () => {
+  $('pageHeader').classList.remove('hidden');
+  $('searchSection').classList.remove('hidden');
+  $('results').style.display = 'none';
+  $('achievementsContent').classList.add('hidden');
+  $('achievementsContent').innerHTML = '';
 });
