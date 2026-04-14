@@ -100,6 +100,18 @@ async function fetchTopRepos(username, headers) {
 }
 
 /* ================================================================
+   Fetch: Starred Repos (REST)
+================================================================ */
+async function fetchStarredRepos(username, headers) {
+  const res = await fetch(
+    `https://api.github.com/users/${username}/starred?per_page=6&sort=created`,
+    { headers }
+  );
+  if (!res.ok) throw new Error(`Could not fetch starred repos (${res.status})`);
+  return res.json();
+}
+
+/* ================================================================
    Fetch: Profile README (REST)
 ================================================================ */
 async function fetchReadme(username, headers) {
@@ -195,14 +207,19 @@ function renderProfile(user) {
       <p class="text-gray-400 text-xs mt-0.5">${s.label}</p>
     </div>`).join('');
 
-  const location  = user.location  ? `<span>📍 ${user.location}</span>`  : '';
-  const company   = user.company   ? `<span>🏢 ${user.company}</span>`   : '';
+  const svgPin = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>`;
+  const svgBuilding = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg>`;
+  const svgLink = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>`;
+  const svgTwitter = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.742l7.73-8.835L1.254 2.25H8.08l4.258 5.63 5.906-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`;
+
+  const location  = user.location  ? `<span class="flex items-center gap-1">${svgPin} ${user.location}</span>`  : '';
+  const company   = user.company   ? `<span class="flex items-center gap-1">${svgBuilding} ${user.company}</span>`   : '';
   const blog      = user.blog      ? `<a href="${user.blog}" target="_blank" rel="noopener"
-                                        class="text-pink-400 hover:underline">🔗 ${user.blog}</a>` : '';
+                                        class="flex items-center gap-1 text-pink-400 hover:underline">${svgLink} ${user.blog}</a>` : '';
   const twitterUn = user.twitter_username
                       ? `<a href="https://twitter.com/${user.twitter_username}" target="_blank"
-                            rel="noopener" class="text-pink-400 hover:underline">
-                           🐦 @${user.twitter_username}</a>` : '';
+                            rel="noopener" class="flex items-center gap-1 text-pink-400 hover:underline">
+                           ${svgTwitter} @${user.twitter_username}</a>` : '';
 
   const metaItems = [location, company, blog, twitterUn].filter(Boolean);
   const metaHTML  = metaItems.length
@@ -216,7 +233,6 @@ function renderProfile(user) {
         <h2 class="text-2xl font-bold text-white">${user.name || user.login}</h2>
         <a href="https://github.com/${user.login}" target="_blank" rel="noopener"
            class="text-pink-400 text-sm hover:underline">@${user.login}</a>
-        ${user.hireable ? '<span class="ml-2 text-xs bg-green-900 text-green-300 rounded-full px-2 py-0.5">Available for hire</span>' : ''}
       </div>
       ${user.bio ? `<p class="text-gray-300 text-sm leading-relaxed">${user.bio}</p>` : ''}
       ${metaHTML}
@@ -268,8 +284,8 @@ function renderRepoCard(repo, isPinned = true) {
       <p class="text-gray-400 text-xs leading-relaxed line-clamp-2">${desc}</p>
       <div class="flex items-center gap-4 text-gray-500 text-xs pt-1">
         ${lang ? `<span>${langDot(lang.color)}${lang.name}</span>` : ''}
-        <span>⭐ ${stars}</span>
-        <span>🍴 ${forks}</span>
+        <span class="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> ${stars}</span>
+        <span class="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M6 9v1a2 2 0 002 2h8a2 2 0 002-2V9"/><line x1="12" y1="12" x2="12" y2="15"/></svg> ${forks}</span>
       </div>
     </a>`;
 }
@@ -302,7 +318,7 @@ function renderContributions(calendar) {
       return `<div class="contrib-cell" title="${day.date}: ${day.contributionCount} contribution(s)"
                    style="background:${baseColor}"></div>`;
     }).join('');
-    return `<div class="flex flex-col gap-[2px]">${dayCells}</div>`;
+    return `<div class="flex flex-col gap-[1px]">${dayCells}</div>`;
   }).join('');
 
   return `
@@ -311,10 +327,10 @@ function renderContributions(calendar) {
       contributions in the last year
     </div>
     <div class="overflow-x-auto pb-2">
-      <div class="inline-grid gap-[2px] mb-1" style="grid-template-columns: repeat(${weeks.length}, 11px)">
+      <div class="inline-grid gap-[1px] mb-1" style="grid-template-columns: repeat(${weeks.length}, 7px)">
         ${monthLabels}
       </div>
-      <div class="flex gap-[2px]">${cells}</div>
+      <div class="flex gap-[1px]">${cells}</div>
     </div>
     <div class="flex items-center gap-2 mt-2 text-xs text-gray-500">
       <span>Less</span>
@@ -355,6 +371,7 @@ async function loadProfile() {
   $('reposContent').innerHTML    = spinner('Loading repositories…');
   $('readmeContent').innerHTML   = spinner('Loading README…');
   $('contribContent').innerHTML  = spinner('Loading contributions…');
+  $('starsContent').innerHTML    = spinner('Loading starred repos…');
   $('readmeSection').classList.remove('hidden');
   $('achievementsContent').classList.add('hidden');
   $('achievementsContent').innerHTML = '';
@@ -458,6 +475,20 @@ async function loadProfile() {
       $('contribContent').innerHTML = renderContributions(calendar);
     } catch (err) {
       $('contribContent').innerHTML = errorHTML(err.message);
+    }
+  })();
+
+  // ── Starred Repos (REST) ──────────────────────────────────────
+  (async () => {
+    try {
+      const starred = await fetchStarredRepos(username, headers);
+      if (starred.length === 0) {
+        $('starsContent').innerHTML = '<p class="text-gray-500 text-sm py-4">No starred repositories found.</p>';
+      } else {
+        $('starsContent').innerHTML = starred.map(r => renderRepoCard(r, false)).join('');
+      }
+    } catch (err) {
+      $('starsContent').innerHTML = errorHTML(err.message);
     }
   })();
 

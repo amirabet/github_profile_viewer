@@ -125,7 +125,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
           </svg>
         </button>
-        <div id="panel-profile" class="px-6 pb-6 pt-2">
+        <div id="panel-profile" class="panel-scroll px-6 pb-6 pt-2">
           <div id="profileContent" class="flex flex-col sm:flex-row gap-6 items-start">
             <!-- filled by JS -->
           </div>
@@ -154,7 +154,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
           </svg>
         </button>
-        <div id="panel-repos" class="px-6 pb-6 pt-2">
+        <div id="panel-repos" class="panel-scroll px-6 pb-6 pt-2">
           <div id="reposContent" class="grid sm:grid-cols-2 gap-4">
             <!-- filled by JS -->
           </div>
@@ -162,7 +162,7 @@
       </div>
 
       <!-- ── 3. README ───────────────────────────────────────────────── -->
-      <div id="readmeSection" class="glass-panel rounded-2xl shadow-lg overflow-hidden full-width-panel hidden">
+      <div id="readmeSection" class="glass-panel rounded-2xl shadow-lg overflow-hidden hidden">
         <button
           class="accordion-btn w-full flex items-center justify-between px-6 py-4 text-left transition focus:outline-none"
           aria-expanded="true"
@@ -180,7 +180,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
           </svg>
         </button>
-        <div id="panel-readme" class="px-6 pb-6 pt-2">
+        <div id="panel-readme" class="panel-scroll px-6 pb-6 pt-2">
           <div id="readmeContent" class="readme-body text-gray-300 text-sm leading-relaxed">
             <!-- filled by JS -->
           </div>
@@ -188,7 +188,7 @@
       </div>
 
       <!-- ── 4. Contributions ────────────────────────────────────────── -->
-      <div id="contribPanel" class="glass-panel rounded-2xl shadow-lg overflow-hidden full-width-panel">
+      <div id="contribPanel" class="glass-panel rounded-2xl shadow-lg overflow-hidden">
         <button
           class="accordion-btn w-full flex items-center justify-between px-6 py-4 text-left transition focus:outline-none"
           aria-expanded="true"
@@ -206,8 +206,34 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
           </svg>
         </button>
-        <div id="panel-contrib" class="px-6 pb-6 pt-2">
+        <div id="panel-contrib" class="panel-scroll px-6 pb-6 pt-2">
           <div id="contribContent">
+            <!-- filled by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 5. Starred Repositories ────────────────────────────────── -->
+      <div id="starsPanel" class="glass-panel rounded-2xl shadow-lg overflow-hidden">
+        <button
+          class="accordion-btn w-full flex items-center justify-between px-6 py-4 text-left transition focus:outline-none"
+          aria-expanded="true"
+          data-target="panel-stars"
+        >
+          <span class="flex items-center gap-2 font-semibold text-gray-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+            </svg>
+            Starred Repositories
+          </span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="chevron w-5 h-5 text-gray-400" fill="none"
+               viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+        <div id="panel-stars" class="panel-scroll px-6 pb-6 pt-2">
+          <div id="starsContent" class="grid sm:grid-cols-2 gap-4">
             <!-- filled by JS -->
           </div>
         </div>
