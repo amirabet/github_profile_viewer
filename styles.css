@@ -60,28 +60,64 @@ body > *:not(.globe-bg) {
 .btn-gradient:active:not(:disabled) { filter: brightness(0.92); transform: scale(0.98); }
 .btn-gradient:disabled { filter: grayscale(0.5) brightness(0.7); cursor: not-allowed; }
 
-/* Results panels layout — masonry-like columns */
-.results-panels {
+/* Results layout — sidebar + content area */
+.results-body {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-@media (min-width: 800px) {
-  .results-panels {
-    display: block;
+/* Profile sidebar panel */
+.profile-sidebar-panel {
+  overflow-x: hidden;
+}
+
+/* Content panels — stacked by default */
+.content-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+/* 600 px and above: sidebar layout */
+@media (min-width: 600px) {
+  .results-body {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .profile-sidebar-panel {
+    width: 250px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .content-panels {
+    flex: 1;
+  }
+}
+
+/* 1200 px and above: widen sidebar, masonry for content panels */
+@media (min-width: 1200px) {
+  .profile-sidebar-panel {
+    width: 350px;
+  }
+
+  .content-panels {
     columns: 2;
     column-gap: 1rem;
+    display: block;
   }
-  .results-panels > * {
+
+  .content-panels > * {
     break-inside: avoid;
     margin-bottom: 1rem;
     display: block;
-  }
-  /* Header bar spans both columns */
-  .results-panels > .full-width-panel {
-    column-span: all;
-    margin-bottom: 0.5rem;
   }
 }
 
