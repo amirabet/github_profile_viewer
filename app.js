@@ -223,21 +223,21 @@ function renderProfile(user) {
 
   const metaItems = [location, company, blog, twitterUn].filter(Boolean);
   const metaHTML  = metaItems.length
-    ? `<div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-400 mt-2">${metaItems.join('')}</div>` : '';
+    ? `<div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-400 mt-2 justify-center">${metaItems.join('')}</div>` : '';
 
   return `
     <img src="${user.avatar_url}" alt="${user.login}'s avatar"
-         class="w-28 h-28 rounded-full shrink-0 object-cover shadow-lg" />
-    <div class="flex-1 space-y-3">
+         class="w-24 h-24 rounded-full object-cover shadow-lg" />
+    <div class="w-full space-y-2 text-center">
       <div>
-        <h2 class="text-2xl font-bold text-white">${user.name || user.login}</h2>
+        <h2 class="text-xl font-bold text-white leading-tight">${user.name || user.login}</h2>
         <a href="https://github.com/${user.login}" target="_blank" rel="noopener"
            class="text-pink-400 text-sm hover:underline">@${user.login}</a>
       </div>
       ${user.bio ? `<p class="text-gray-300 text-sm leading-relaxed">${user.bio}</p>` : ''}
       ${metaHTML}
       <p class="text-gray-500 text-xs">Joined ${joinDate}</p>
-      <div class="flex flex-wrap gap-3 pt-1">${statCards}</div>
+      <div class="flex flex-wrap gap-2 pt-1 justify-center">${statCards}</div>
     </div>`;
 }
 
@@ -376,11 +376,14 @@ async function loadProfile() {
   $('achievementsContent').classList.add('hidden');
   $('achievementsContent').innerHTML = '';
 
-  // Ensure all accordion panels are visible
+  // Set accordion panel initial states
+  // Collapse Pinned Repos and Starred Repos at >= 600 px; keep Contributions expanded
   document.querySelectorAll('.accordion-btn').forEach(b => {
-    b.setAttribute('aria-expanded', 'true');
-    const panel = document.getElementById(b.dataset.target);
-    if (panel) panel.style.display = '';
+    const target = b.dataset.target;
+    const shouldCollapse = (target === 'panel-repos' || target === 'panel-stars') && window.matchMedia('(min-width: 600px)').matches;
+    b.setAttribute('aria-expanded', String(!shouldCollapse));
+    const panel = document.getElementById(target);
+    if (panel) panel.style.display = shouldCollapse ? 'none' : '';
   });
 
   // ── Profile ──────────────────────────────────────────────────
