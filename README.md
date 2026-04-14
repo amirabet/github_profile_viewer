@@ -1,5 +1,5 @@
 # GitHub Profile Viewer
-[Live Demo](https://github.com/amirabet/github_profile_viewer/deployments/github-pages)
+[Live Demo](https://amirabet.github.io/github_profile_viewer/)
 
 A single-page HTML application that displays a GitHub user's profile information in an elegant dark/pink-themed UI powered by **Tailwind CSS**.
 
