@@ -102,22 +102,17 @@ body > *:not(.globe-bg) {
   }
 }
 
-/* 1200 px and above: widen sidebar, masonry for content panels */
+/* 1200 px and above: widen sidebar, 2-column grid for content panels */
 @media (min-width: 1200px) {
   .profile-sidebar-panel {
     width: 350px;
   }
 
   .content-panels {
-    columns: 2;
-    column-gap: 1rem;
-    display: block;
-  }
-
-  .content-panels > * {
-    break-inside: avoid;
-    margin-bottom: 1rem;
-    display: block;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    align-items: start;
   }
 }
 
