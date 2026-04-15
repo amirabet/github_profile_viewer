@@ -132,6 +132,10 @@ async function fetchContributions(username, headers) {
     query($login: String!) {
       user(login: $login) {
         contributionsCollection {
+          totalCommitContributions
+          totalIssueContributions
+          totalPullRequestContributions
+          totalPullRequestReviewContributions
           contributionCalendar {
             totalContributions
             months { name firstDay totalWeeks }
@@ -152,7 +156,7 @@ async function fetchContributions(username, headers) {
   if (!res.ok) throw new Error('Contributions request failed');
   const json = await res.json();
   if (json.errors) throw new Error(json.errors[0].message);
-  return json.data?.user?.contributionsCollection?.contributionCalendar ?? null;
+  return json.data?.user?.contributionsCollection ?? null;
 }
 
 /* ================================================================
@@ -291,9 +295,111 @@ function renderRepoCard(repo, isPinned = true) {
 }
 
 /* ================================================================
+   Render: Activity (Polar/Radar) Chart
+================================================================ */
+function renderActivityChart(collection) {
+  const commits  = collection.totalCommitContributions            || 0;
+  const reviews  = collection.totalPullRequestReviewContributions  || 0;
+  const issues   = collection.totalIssueContributions             || 0;
+  const prs      = collection.totalPullRequestContributions       || 0;
+
+  const total = commits + reviews + issues + prs;
+  if (total === 0) return '';
+
+  const pC = commits / total;  // left
+  const pR = reviews / total;  // top
+  const pI = issues  / total;  // right
+  const pP = prs     / total;  // bottom
+
+  const fmt = p => Math.round(p * 100) + '%';
+
+  // Layout
+  const W = 340, H = 290;
+  const cx = W / 2, cy = H / 2;
+  const R = 78;       // max axis radius
+  const lPad = 32;    // label distance beyond R
+
+  // Axes: [top=CodeReview, right=Issues, bottom=PRs, left=Commits]
+  const axes = [
+    { angle: -Math.PI / 2, pct: pR, label: 'Code review'   },
+    { angle:  0,           pct: pI, label: 'Issues'        },
+    { angle:  Math.PI / 2, pct: pP, label: 'Pull requests' },
+    { angle:  Math.PI,     pct: pC, label: 'Commits'       },
+  ];
+
+  // Axis tip coordinates (max radius)
+  const tips = axes.map(a => ({
+    x: cx + Math.cos(a.angle) * R,
+    y: cy + Math.sin(a.angle) * R,
+  }));
+
+  // Data polygon vertices
+  const dataPts = axes.map(a => ({
+    x: cx + Math.cos(a.angle) * R * a.pct,
+    y: cy + Math.sin(a.angle) * R * a.pct,
+  }));
+
+  const polyPts = dataPts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+
+  // Grid circles
+  const gridCircles = [0.25, 0.5, 0.75, 1.0].map(f =>
+    `<circle cx="${cx}" cy="${cy}" r="${(R * f).toFixed(1)}" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/>`
+  ).join('');
+
+  // Axis lines
+  const axisLines = tips.map(t =>
+    `<line x1="${cx}" y1="${cy}" x2="${t.x.toFixed(1)}" y2="${t.y.toFixed(1)}" stroke="#1e3a6c" stroke-width="1"/>`
+  ).join('');
+
+  // Data point circles (matching contribution scale: #2563eb)
+  const dotCircles = dataPts.map(p =>
+    `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.5" fill="#2563eb" stroke="#040e1e" stroke-width="1.5"/>`
+  ).join('');
+
+  // Labels with percentage + name, correctly positioned outside each axis
+  const labelEls = axes.map(a => {
+    const lx = cx + Math.cos(a.angle) * (R + lPad);
+    const ly = cy + Math.sin(a.angle) * (R + lPad);
+
+    let ta, pctDy, lblDy;
+    if (Math.abs(a.angle + Math.PI / 2) < 0.01) {
+      // top
+      ta = 'middle'; pctDy = -14; lblDy = 0;
+    } else if (Math.abs(a.angle - Math.PI / 2) < 0.01) {
+      // bottom
+      ta = 'middle'; pctDy = 14; lblDy = 28;
+    } else if (Math.abs(a.angle) < 0.01) {
+      // right
+      ta = 'start'; pctDy = -6; lblDy = 8;
+    } else {
+      // left
+      ta = 'end'; pctDy = -6; lblDy = 8;
+    }
+
+    return `<text x="${lx.toFixed(1)}" y="${(ly + pctDy).toFixed(1)}" text-anchor="${ta}" font-size="12" font-weight="700" fill="#e5e7eb">${fmt(a.pct)}</text>
+        <text x="${lx.toFixed(1)}" y="${(ly + lblDy).toFixed(1)}" text-anchor="${ta}" font-size="11" fill="#9ca3af">${a.label}</text>`;
+  }).join('\n        ');
+
+  return `
+    <div class="mt-6 flex flex-col items-center gap-1">
+      <p class="text-xs text-gray-500 uppercase tracking-widest">Activity breakdown</p>
+      <svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="max-width:100%;overflow:visible" aria-label="Activity breakdown radar chart">
+        ${gridCircles}
+        ${axisLines}
+        <polygon points="${polyPts}" fill="rgba(37,99,235,0.18)" stroke="#2563eb" stroke-width="1.5" stroke-linejoin="round"/>
+        ${dotCircles}
+        ${labelEls}
+      </svg>
+    </div>`;
+}
+
+/* ================================================================
    Render: Contribution Calendar
 ================================================================ */
-function renderContributions(calendar) {
+function renderContributions(collection) {
+  if (!collection) return errorHTML('Contribution data not available.');
+
+  const calendar = collection.contributionCalendar;
   if (!calendar) return errorHTML('Contribution data not available.');
 
   const { totalContributions, weeks, months } = calendar;
@@ -340,7 +446,8 @@ function renderContributions(calendar) {
       <div class="contrib-legend-3 w-3 h-3 rounded-sm"></div>
       <div class="contrib-legend-4 w-3 h-3 rounded-sm"></div>
       <span>More</span>
-    </div>`;
+    </div>
+    ${renderActivityChart(collection)}`;
 }
 
 /* ================================================================
@@ -377,10 +484,10 @@ async function loadProfile() {
   $('achievementsContent').innerHTML = '';
 
   // Set accordion panel initial states
-  // Collapse Pinned Repos and Starred Repos at >= 600 px; keep Contributions expanded
+  // About Me and Activity are always expanded; Pinned and Starred are always collapsed
   document.querySelectorAll('.accordion-btn').forEach(b => {
     const target = b.dataset.target;
-    const shouldCollapse = (target === 'panel-repos' || target === 'panel-stars') && window.matchMedia('(min-width: 600px)').matches;
+    const shouldCollapse = target === 'panel-repos' || target === 'panel-stars';
     b.setAttribute('aria-expanded', String(!shouldCollapse));
     const panel = document.getElementById(target);
     if (panel) panel.style.display = shouldCollapse ? 'none' : '';
@@ -474,8 +581,8 @@ async function loadProfile() {
       return;
     }
     try {
-      const calendar = await fetchContributions(username, headers);
-      $('contribContent').innerHTML = renderContributions(calendar);
+      const collection = await fetchContributions(username, headers);
+      $('contribContent').innerHTML = renderContributions(collection);
     } catch (err) {
       $('contribContent').innerHTML = errorHTML(err.message);
     }

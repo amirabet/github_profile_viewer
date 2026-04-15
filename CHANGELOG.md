@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-04-15
+
+### Added
+- **Favicon** — SVG favicon matching the app's pink-on-dark-navy branding, displayed in the browser tab
+- **Activity breakdown radar chart** — polar/radar chart rendered below the contribution calendar showing the percentage split of Commits, Code review, Issues and Pull requests; uses the same blue-to-pink colour palette as the contribution grid; powered by the extended `contributionsCollection` GraphQL query fields (`totalCommitContributions`, `totalIssueContributions`, `totalPullRequestContributions`, `totalPullRequestReviewContributions`)
+
+### Changed
+- **Panel order** rearranged to: *About Me* → *Activity* → *Pinned Repositories* → *Starred Repositories*
+- **README panel** renamed to **About Me** and always expands on first load
+- **Contributions panel** renamed to **Activity** and always expands on first load
+- **Pinned Repositories** panel now collapses on first load (on all screen sizes)
+- **Starred Repositories** panel now collapses on first load (on all screen sizes)
+
 ## [1.1.0] - 2026-04-13
 
 ### Added
@@ -43,6 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Loading spinners for each data section
 - Graceful error handling per section (one failure does not block others)
 
-[Unreleased]: https://github.com/amirabet/github_profile_viewer/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/amirabet/github_profile_viewer/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/amirabet/github_profile_viewer/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/amirabet/github_profile_viewer/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/amirabet/github_profile_viewer/releases/tag/v1.0.0
