@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GitHub Profile Viewer</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="tailwind.config.js"></script>
   <!-- marked.js for rendering Markdown README -->
@@ -133,11 +134,63 @@
         <!-- ── Content panels (accordion panels) ──────────────────────── -->
         <div class="content-panels">
 
-          <!-- ── 2. Pinned Repos ───────────────────────────────────────── -->
-          <div id="reposPanel" class="glass-panel rounded-2xl shadow-lg overflow-hidden">
+          <!-- ── 1. About Me (README) ──────────────────────────────────── -->
+          <div id="readmeSection" class="glass-panel rounded-2xl shadow-lg overflow-hidden hidden">
             <button
               class="accordion-btn w-full flex items-center justify-between px-6 py-4 text-left transition focus:outline-none"
               aria-expanded="true"
+              data-target="panel-readme"
+            >
+              <span class="flex items-center gap-2 font-semibold text-gray-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12h6M9 16h6M7 4h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2z"/>
+                </svg>
+                About Me
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="chevron w-5 h-5 text-gray-400" fill="none"
+                   viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            <div id="panel-readme" class="panel-scroll px-6 pb-6 pt-2">
+              <div id="readmeContent" class="readme-body text-gray-300 text-sm leading-relaxed">
+                <!-- filled by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- ── 2. Activity (Contributions) ──────────────────────────── -->
+          <div id="contribPanel" class="glass-panel rounded-2xl shadow-lg overflow-hidden">
+            <button
+              class="accordion-btn w-full flex items-center justify-between px-6 py-4 text-left transition focus:outline-none"
+              aria-expanded="true"
+              data-target="panel-contrib"
+            >
+              <span class="flex items-center gap-2 font-semibold text-gray-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Activity
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="chevron w-5 h-5 text-gray-400" fill="none"
+                   viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            <div id="panel-contrib" class="panel-scroll px-6 pb-6 pt-2">
+              <div id="contribContent">
+                <!-- filled by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- ── 3. Pinned Repos ───────────────────────────────────────── -->
+          <div id="reposPanel" class="glass-panel rounded-2xl shadow-lg overflow-hidden">
+            <button
+              class="accordion-btn w-full flex items-center justify-between px-6 py-4 text-left transition focus:outline-none"
+              aria-expanded="false"
               data-target="panel-repos"
             >
               <span class="flex items-center gap-2 font-semibold text-gray-200">
@@ -152,70 +205,18 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
               </svg>
             </button>
-            <div id="panel-repos" class="panel-scroll px-6 pb-6 pt-2">
+            <div id="panel-repos" class="panel-scroll px-6 pb-6 pt-2" style="display:none">
               <div id="reposContent" class="grid sm:grid-cols-2 gap-4">
                 <!-- filled by JS -->
               </div>
             </div>
           </div>
 
-          <!-- ── 3. README ─────────────────────────────────────────────── -->
-          <div id="readmeSection" class="glass-panel rounded-2xl shadow-lg overflow-hidden hidden">
-            <button
-              class="accordion-btn w-full flex items-center justify-between px-6 py-4 text-left transition focus:outline-none"
-              aria-expanded="true"
-              data-target="panel-readme"
-            >
-              <span class="flex items-center gap-2 font-semibold text-gray-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 12h6M9 16h6M7 4h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2z"/>
-                </svg>
-                README
-              </span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="chevron w-5 h-5 text-gray-400" fill="none"
-                   viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
-            </button>
-            <div id="panel-readme" class="panel-scroll px-6 pb-6 pt-2">
-              <div id="readmeContent" class="readme-body text-gray-300 text-sm leading-relaxed">
-                <!-- filled by JS -->
-              </div>
-            </div>
-          </div>
-
-          <!-- ── 4. Contributions ──────────────────────────────────────── -->
-          <div id="contribPanel" class="glass-panel rounded-2xl shadow-lg overflow-hidden">
-            <button
-              class="accordion-btn w-full flex items-center justify-between px-6 py-4 text-left transition focus:outline-none"
-              aria-expanded="true"
-              data-target="panel-contrib"
-            >
-              <span class="flex items-center gap-2 font-semibold text-gray-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-                Contributions
-              </span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="chevron w-5 h-5 text-gray-400" fill="none"
-                   viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
-            </button>
-            <div id="panel-contrib" class="panel-scroll px-6 pb-6 pt-2">
-              <div id="contribContent">
-                <!-- filled by JS -->
-              </div>
-            </div>
-          </div>
-
-          <!-- ── 5. Starred Repositories ───────────────────────────────── -->
+          <!-- ── 4. Starred Repositories ───────────────────────────────── -->
           <div id="starsPanel" class="glass-panel rounded-2xl shadow-lg overflow-hidden">
             <button
               class="accordion-btn w-full flex items-center justify-between px-6 py-4 text-left transition focus:outline-none"
-              aria-expanded="true"
+              aria-expanded="false"
               data-target="panel-stars"
             >
               <span class="flex items-center gap-2 font-semibold text-gray-200">
@@ -230,7 +231,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
               </svg>
             </button>
-            <div id="panel-stars" class="panel-scroll px-6 pb-6 pt-2">
+            <div id="panel-stars" class="panel-scroll px-6 pb-6 pt-2" style="display:none">
               <div id="starsContent" class="grid sm:grid-cols-2 gap-4">
                 <!-- filled by JS -->
               </div>
