@@ -357,18 +357,19 @@ function renderActivityChart(collection) {
   ).join('');
 
   // Labels with percentage + name, correctly positioned outside each axis
+  const ANGLE_EPSILON = 0.01;
   const labelEls = axes.map(a => {
     const lx = cx + Math.cos(a.angle) * (R + lPad);
     const ly = cy + Math.sin(a.angle) * (R + lPad);
 
     let ta, pctDy, lblDy;
-    if (Math.abs(a.angle + Math.PI / 2) < 0.01) {
+    if (Math.abs(a.angle + Math.PI / 2) < ANGLE_EPSILON) {
       // top
       ta = 'middle'; pctDy = -14; lblDy = 0;
-    } else if (Math.abs(a.angle - Math.PI / 2) < 0.01) {
+    } else if (Math.abs(a.angle - Math.PI / 2) < ANGLE_EPSILON) {
       // bottom
       ta = 'middle'; pctDy = 14; lblDy = 28;
-    } else if (Math.abs(a.angle) < 0.01) {
+    } else if (Math.abs(a.angle) < ANGLE_EPSILON) {
       // right
       ta = 'start'; pctDy = -6; lblDy = 8;
     } else {
